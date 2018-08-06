@@ -32,6 +32,8 @@ class Deploy extends Extension
                 config('admin.extensions.deploy.name', 'deploy'),
                 config('admin.extensions.deploy.controller', 'Luischavez\Admin\Deploy\DeployController')
             );
+
+            $router->post('deploy/trigger', 'Luischavez\Admin\Deploy\DeployController@trigger')->name('deploy-trigger');
         });
     }
 

@@ -21,7 +21,7 @@ class CreateAdminDeployTable extends Migration
             $table->increments('id');
             $table->text('status')->nullable();
             $table->boolean('finished')->default(false);
-            $table->boolean('success')->default(false);
+            $table->boolean('error')->default(false);
             $table->timestamps();
         });
     }
