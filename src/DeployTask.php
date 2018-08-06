@@ -30,7 +30,7 @@ class DeployTask implements ShouldQueue
 
     private function updateDeployStatus($status, $finished = false, $error = false)
     {
-        $this->deploy->status .= '<p>' . "[task #{$this->deploy->id}] " . $status . '</p>';
+        $this->deploy->status .= "<p>$status</p>";
         $this->deploy->finished = $finished;
         $this->deploy->error = $error;
         $this->deploy->save();

@@ -10,17 +10,6 @@ use Encore\Admin\Layout\Column;
 use Encore\Admin\Layout\Row;
 use Encore\Admin\Layout\Content;
 
-use Encore\Admin\Grid\Tools\AbstractTool;
-
-class TestTool extends AbstractTool
-{
-
-    public function render()
-    {
-        return view('laravel-admin-deploy::tool');
-    }
-}
-
 class DeployController
 {
     use ModelForm;
@@ -37,7 +26,7 @@ class DeployController
             $content->description('Deploy list..');
 
             $content->row(function (Row $row) {
-                $row->column(12, new TestTool());
+                $row->column(12, new TriggerDeploy());
             });
 
             $content->body($this->grid());
@@ -48,7 +37,15 @@ class DeployController
     {
         return Admin::grid(DeployModel::class, function (Grid $grid) {
             $grid->id('ID');
-            $grid->status();
+            $grid->finished()->display(function ($finished) {
+                return $finished ? 'yes' : 'no';
+            });
+            $grid->error()->display(function ($error) {
+                return $error ? 'yes' : 'no';
+            });
+            $grid->status()->display(function ($status) {
+                return $status;
+            });
             $grid->created_at();
             $grid->updated_at();
 
@@ -58,7 +55,6 @@ class DeployController
             $grid->disableExport();
             $grid->disableRowSelector();
             $grid->disableActions();
-            $grid->orderable();
 
             $grid->filter(function ($filter) {
                 $filter->disableIdFilter();
@@ -78,5 +74,7 @@ class DeployController
     public function trigger()
     {
         DeployTask::dispatch();
+
+        return redirect()->route('deploy.index');
     }
 }
