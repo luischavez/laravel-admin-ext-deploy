@@ -30,7 +30,7 @@ class DeployTask implements ShouldQueue
 
     private function updateDeployStatus($status, $finished = false, $error = false)
     {
-        $this->deploy->status .= "<p>$status</p>";
+        $this->deploy->status .= $status;
         $this->deploy->finished = $finished;
         $this->deploy->error = $error;
         $this->deploy->save();
@@ -43,13 +43,14 @@ class DeployTask implements ShouldQueue
         $git = new Process("git pull origin $branch");
         $git->setWorkingDirectory(base_path());
 
-        $this->updateDeployStatus("git pull origin $branch");
+        $this->updateDeployStatus("<p>git pull origin $branch");
 
         $git->run();
 
         if($git->isSuccessful()){
-            $this->updateDeployStatus("git pull origin $branch... success");
+            $this->updateDeployStatus('...success</p>');
         } else {
+            $this->updateDeployStatus('...error</p>');
             throw new ProcessFailedException($git);
         }
     }
@@ -59,13 +60,14 @@ class DeployTask implements ShouldQueue
         $migrate = new Process('php artisan migrate');
         $migrate->setWorkingDirectory(base_path());
 
-        $this->updateDeployStatus('php artisan migrate');
+        $this->updateDeployStatus('<p>php artisan migrate');
 
         $migrate->run();
 
         if($migrate->isSuccessful()){
-            $this->updateDeployStatus('php artisan migrate... success');
+            $this->updateDeployStatus('...success</p>');
         } else {
+            $this->updateDeployStatus('...error</p>');
             throw new ProcessFailedException($migrate);
         }
     }
@@ -75,13 +77,14 @@ class DeployTask implements ShouldQueue
         $install = new Process('composer install');
         $install->setWorkingDirectory(base_path());
 
-        $this->updateDeployStatus('composer install');
+        $this->updateDeployStatus('<p>composer install');
 
         $install->run();
 
         if($install->isSuccessful()){
-            $this->updateDeployStatus('composer install... success');
+            $this->updateDeployStatus('...success</p>');
         } else {
+            $this->updateDeployStatus('...error</p>');
             throw new ProcessFailedException($install);
         }
     }
@@ -94,15 +97,15 @@ class DeployTask implements ShouldQueue
     public function handle()
     {
         try {
-            $this->updateDeployStatus('initialize deploy');
+            $this->updateDeployStatus('<p>initialize deploy</p>');
 
             $this->runGitPull();
-            $this->runMigrate();
             $this->runComposerInstall();
+            $this->runMigrate();
 
-            $this->updateDeployStatus('finished deploy', true, false);
+            $this->updateDeployStatus('<p>finished deploy</p>', true, false);
         } catch (Exception $ex) {
-            $this->updateDeployStatus($ex->getMessage(), true, true);
+            $this->updateDeployStatus('<p>' . $ex->getMessage() . '</p>', true, true);
         }
     }
 }
