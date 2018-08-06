@@ -40,15 +40,15 @@ class DeployTask implements ShouldQueue
     {
         $branch = config('admin.extensions.deploy.branch', 'master');
 
-        $git = new Process("git pull $branch");
+        $git = new Process("git pull origin $branch");
         $git->setWorkingDirectory(base_path());
 
-        $this->updateDeployStatus("git pull $branch");
+        $this->updateDeployStatus("git pull origin $branch");
 
         $git->run();
 
         if($git->isSuccessful()){
-            $this->updateDeployStatus("git pull $branch... success");
+            $this->updateDeployStatus("git pull origin $branch... success");
         } else {
             throw new ProcessFailedException($git);
         }

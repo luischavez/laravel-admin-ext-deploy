@@ -17,6 +17,7 @@ class DeployServiceProvider extends ServiceProvider
         }
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-admin-deploy');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'laravel-admin-deploy');
 
         Deploy::boot();
     }
