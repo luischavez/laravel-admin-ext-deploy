@@ -16,7 +16,7 @@ class Deploy extends Extension
     public static function boot()
     {
         static::registerRoutes();
-        Admin::extend('config', __CLASS__);
+        Admin::extend('deploy', __CLASS__);
     }
 
     /**
