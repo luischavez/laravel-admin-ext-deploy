@@ -2,6 +2,6 @@
     <form action="{{ route('deploy-trigger') }}" method="POST">
         @csrf
 
-        <input type="submit" class="btn btn-sm btn-primary" value="{{ __('admin.deploy') }}">
+        <input type="submit" class="btn btn-sm btn-primary" value="{{ __('laravel-admin-deploy::admin.deploy') }}">
     </form>
 </div>

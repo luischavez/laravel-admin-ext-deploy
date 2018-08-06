@@ -42,7 +42,7 @@ class Deploy extends Extension
      */
     public static function import()
     {
-        parent::createMenu('Deploy', 'deploy', 'fa-toggle-on');
+        parent::createMenu('Deploy', 'deploy', 'fa fa-code-fork');
         parent::createPermission('Admin Deploy', 'ext.deploy', 'deploy*');
     }
 }
