@@ -1,5 +1,5 @@
 {
-    "name": "laravel-admin-ext/deploy",
+    "name": "luischavez/laravel-admin-ext-deploy",
     "description": "Deploy extension for laravel-admin",
     "type": "library",
     "keywords": ["laravel-admin", "deploy"],
