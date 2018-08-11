@@ -72,7 +72,7 @@ class DeployTask implements ShouldQueue
 
     private function runComposerInstall()
     {
-        if (!getenv('HOME')){ putenv ('HOME=' . base_path());
+        if (!getenv('HOME')) putenv('HOME=' . base_path());
 
         $install = new Process('composer install --no-dev', base_path(), null, null, null);
 
