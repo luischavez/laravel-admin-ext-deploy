@@ -40,8 +40,7 @@ class DeployTask implements ShouldQueue
     {
         $branch = config('admin.extensions.deploy.branch', 'master');
 
-        $git = new Process("git pull origin $branch");
-        $git->setWorkingDirectory(base_path());
+        $git = new Process("git pull origin $branch", base_path());
 
         $this->updateDeployStatus("<p>git pull origin $branch");
 
@@ -57,8 +56,7 @@ class DeployTask implements ShouldQueue
 
     private function runMigrate()
     {
-        $migrate = new Process('php artisan migrate');
-        $migrate->setWorkingDirectory(base_path());
+        $migrate = new Process('php artisan migrate', base_path());
 
         $this->updateDeployStatus('<p>php artisan migrate');
 
@@ -76,8 +74,8 @@ class DeployTask implements ShouldQueue
     {
         $composerPath = config('admin.extensions.deploy.composer_path', '/user/local/bin');
 
-        $install = new Process('composer install', 
-            base_path(), ['COMPOSER_HOME' => $composerPath], null, null);
+        putenv("COMPOSER_HOME=$composerPath");
+        $install = new Process('composer install', base_path(), null, null, null);
 
         $this->updateDeployStatus('<p>composer install');
 
