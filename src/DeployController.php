@@ -83,7 +83,7 @@ class DeployController
         \Log::debug(request());
         $secret = request()->get('secret');
 
-        app()->abortIf($secret != config('admin.extensions.deploy.secret'), 401);
+        app()->abort_if($secret != config('admin.extensions.deploy.secret'), 401);
 
         $this->trigger();
     }
