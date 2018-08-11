@@ -77,4 +77,14 @@ class DeployController
 
         return redirect()->route('deploy.index');
     }
+
+    public function webhook()
+    {
+        \Log::debug(request());
+        $secret = request()->get('secret');
+
+        app()->abortIf($secret != config('admin.extensions.deploy.secret'), 401);
+
+        $this->trigger();
+    }
 }

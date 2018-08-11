@@ -2,6 +2,8 @@
 
 namespace Luischavez\Admin\Deploy;
 
+use Illuminate\Support\Facades\Route;
+
 use Encore\Admin\Admin;
 use Encore\Admin\Extension;
 
@@ -33,8 +35,10 @@ class Deploy extends Extension
                 config('admin.extensions.deploy.controller', 'Luischavez\Admin\Deploy\DeployController')
             );
 
-            $router->post('deploy/trigger', 'Luischavez\Admin\Deploy\DeployController@trigger')->name('deploy-trigger');
+            $router->post('deploy/trigger', 'Luischavez\Admin\Deploy\DeployController@trigger')->name('deploy.trigger');
         });
+
+        Route::post('deploy_webhook', 'Luischavez\Admin\Deploy\DeployController@webhook')->name('deploy.webhook');
     }
 
     /**
