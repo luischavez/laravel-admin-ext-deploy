@@ -72,8 +72,9 @@ class DeployTask implements ShouldQueue
 
     private function runComposerInstall()
     {
-        $composer = base_path('vendor/composer/composer/bin/composer');
-        $install = new Process($composer . ' install --no-dev', base_path(), null, null, null);
+        if (!getenv('HOME')){ putenv ('HOME=' . base_path());
+
+        $install = new Process('composer install --no-dev', base_path(), null, null, null);
 
         $this->updateDeployStatus('<p>composer install');
 
