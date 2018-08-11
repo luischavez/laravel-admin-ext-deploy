@@ -80,8 +80,9 @@ class DeployController
 
     public function webhook()
     {
-        \Log::debug(request());
-        $secret = request()->get('secret');
+        $secret = request()->header('X-Gitlab-Token');
+
+        if (empty($secret)) $secret = request()->get('secret');
 
         abort_if($secret != config('admin.extensions.deploy.secret'), 401);
 
