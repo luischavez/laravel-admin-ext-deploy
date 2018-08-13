@@ -88,6 +88,22 @@ class DeployTask implements ShouldQueue
         }
     }
 
+    private function changeStatus($available = true)
+    {
+        $status = new Process('php artisan ' . ($available ? 'up' : 'down'), base_path());
+
+        $this->updateDeployStatus('<p>php artisan ' . ($available ? 'up' : 'down'));
+
+        $status->run();
+
+        if($status->isSuccessful()){
+            $this->updateDeployStatus('...success</p>');
+        } else {
+            $this->updateDeployStatus('...error</p>');
+            throw new ProcessFailedException($status);
+        }
+    }
+
     /**
      * Execute the job.
      *
@@ -98,9 +114,13 @@ class DeployTask implements ShouldQueue
         try {
             $this->updateDeployStatus('<p>initialize deploy</p>');
 
+            $this->changeStatus(false);
+
             $this->runGitPull();
             $this->runComposerInstall();
             $this->runMigrate();
+
+            $this->changeStatus(true);
 
             $this->updateDeployStatus('<p>finished deploy</p>', true, false);
         } catch (Exception $ex) {
