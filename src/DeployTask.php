@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Event;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -36,71 +37,19 @@ class DeployTask implements ShouldQueue
         $this->deploy->save();
     }
 
-    private function runGitPull()
+    private function runCommand($command)
     {
-        $branch = config('admin.extensions.deploy.branch', 'master');
+        $program = new Process($command, base_path(), null, null, null);
 
-        $git = new Process("git pull origin $branch", base_path());
+        $this->updateDeployStatus('<p>' . $command);
 
-        $this->updateDeployStatus("<p>git pull origin $branch");
+        $program->run();
 
-        $git->run();
-
-        if($git->isSuccessful()){
+        if($program->isSuccessful()){
             $this->updateDeployStatus('...success</p>');
         } else {
             $this->updateDeployStatus('...error</p>');
-            throw new ProcessFailedException($git);
-        }
-    }
-
-    private function runMigrate()
-    {
-        $migrate = new Process('php artisan migrate', base_path());
-
-        $this->updateDeployStatus('<p>php artisan migrate');
-
-        $migrate->run();
-
-        if($migrate->isSuccessful()){
-            $this->updateDeployStatus('...success</p>');
-        } else {
-            $this->updateDeployStatus('...error</p>');
-            throw new ProcessFailedException($migrate);
-        }
-    }
-
-    private function runComposerInstall()
-    {
-        if (!getenv('HOME')) putenv('HOME=' . base_path());
-
-        $install = new Process('composer install --no-dev', base_path(), null, null, null);
-
-        $this->updateDeployStatus('<p>composer install');
-
-        $install->run();
-
-        if($install->isSuccessful()){
-            $this->updateDeployStatus('...success</p>');
-        } else {
-            $this->updateDeployStatus('...error</p>');
-            throw new ProcessFailedException($install);
-        }
-    }
-
-    private function changeStatus($available = true)
-    {
-        $status = new Process('php artisan ' . ($available ? 'up' : 'down'), base_path());
-
-        $this->updateDeployStatus('<p>php artisan ' . ($available ? 'up' : 'down'));
-
-        $status->run();
-
-        if($status->isSuccessful()){
-            $this->updateDeployStatus('...success</p>');
-        } else {
-            $this->updateDeployStatus('...error</p>');
-            throw new ProcessFailedException($status);
+            throw new ProcessFailedException($program);
         }
     }
 
@@ -112,17 +61,26 @@ class DeployTask implements ShouldQueue
     public function handle()
     {
         try {
+            $debug = config('app.debug', false);
+            $branch = config('admin.extensions.deploy.branch', 'master');
+
             $this->updateDeployStatus('<p>initialize deploy</p>');
 
-            $this->changeStatus(false);
+            $this->runCommand('php artisan down');
 
-            $this->runGitPull();
-            $this->runComposerInstall();
-            $this->runMigrate();
+            if ($debug) $this->runCommand('git reset --hard');
 
-            $this->changeStatus(true);
+            $this->runCommand('git pull origin ' . $branch);
+            $this->runCommand('composer install ' . ($debug ? '' : ' --no-dev'));
+            $this->runCommand('php artisan migrate ' . ($debug ? ':fresh' : ''));
+
+            if ($debug) $this->runCommand('php artisan db:seed');
+
+            $this->runCommand('php artisan up');
 
             $this->updateDeployStatus('<p>finished deploy</p>', true, false);
+
+            Event::fire(new DeployEvent($this->deploy));
         } catch (Exception $ex) {
             $this->updateDeployStatus('<p>' . $ex->getMessage() . '</p>', true, true);
         }
