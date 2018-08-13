@@ -72,7 +72,7 @@ class DeployTask implements ShouldQueue
 
             $this->runCommand('git pull origin ' . $branch);
             $this->runCommand('composer install ' . ($debug ? '' : ' --no-dev'));
-            $this->runCommand('php artisan migrate ' . ($debug ? ':fresh' : ''));
+            $this->runCommand('php artisan migrate' . ($debug ? ':fresh' : ''));
 
             if ($debug) $this->runCommand('php artisan db:seed');
 
